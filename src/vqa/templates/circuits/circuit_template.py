@@ -1,6 +1,7 @@
 import numpy as np
 import pennylane as qml
 from pennylane import numpy as qnp
+
 from vqa.templates.circuits import AbstractCircuit
 
 
@@ -27,7 +28,7 @@ class TemplateCircuit(AbstractCircuit):
         return H
 
     def __call__(self, x):
-        return _circ(x)
+        return _abstact_circuit(x)
 
     def _abstact_circuit(self, x):
         qml.RY(np.pi / 4, wires=0)
