@@ -28,7 +28,7 @@ class TemplateCircuit(AbstractCircuit):
         return H
 
     def __call__(self, x):
-        return _abstact_circuit(x)
+        return _circuit_ansatz(x)
 
-    def _abstact_circuit(self, x):
+    def _circuit_ansatz(self, x):
         qml.RY(np.pi / 4, wires=0)
