@@ -1,32 +1,69 @@
-# https://arxiv.org/pdf/1803.11173.pdf
+from typing import Callable, Dict, List, Optional
+
 import numpy as np
 import pennylane as qml
 from pennylane import numpy as qnp
 from pennylane.operation import Operation
 from vqa.templates.circuits import AbstractCircuit
-from vqa.utils.decorator import memory, obj_memory
 from vqa.utils.utils import pairwise
 
 
 class BarrenPlateauCircuit(AbstractCircuit):
-    def __init__(self, num_layers, num_qubits: int = 5):
+    """Class for building Barren Plateau Circuits.
+        https://arxiv.org/pdf/1803.11173.pdf
+
+    The class inherits from the AbstractCircuit class and implements the methods
+    and properties required for building a Barren Plateau Circuit.
+
+    Attributes:
+        num_layers (int): Number of layers in the circuit.
+        num_qubits (int): Number of qubits in the circuit.
+        list_gate_set (list): List of gate sequences for each layer.
+        params (numpy.ndarray): Parameters for the circuit.
+    """
+
+    def __init__(self, num_layers: int, num_qubits: int = 5):
         super().__init__()
         self.num_layers = num_layers
         self.num_qubits = num_qubits
         self.list_gate_set = []  # (n_qubits, layers)
-        self.params = None
 
     @property
     def wires(self):
+        """Property that returns the list of wires in the circuit.
+
+        Returns:
+            list: List of wires in the circuit.
+        """
         return range(self.num_qubits)
 
-    def init(self, rng_key=None):
-        self.list_gate_set = self._pauli_gates(self.num_layers, self.wires, rng_key)
-        return self._params(rng_key)
+    def init(self, seed: int = None):
+        """Initializes the gate sequences and circuit parameters.
 
-    def _pauli_gates(self, layer, wires, rng_key):
-        if rng_key is not None:
-            np.random.seed(rng_key)
+        Args:
+            seed (int, optional): Seed for the random number generator.
+
+        Returns:
+            numpy.ndarray: Circuit parameters.
+        """
+        self.list_gate_set = self._pauli_gates(self.num_layers, self.wires, seed)
+        return self._params(seed)
+
+    def _pauli_gates(
+        self, layer: int, wires: List[int], seed: Optional[int] = None
+    ) -> List[Dict[int, Callable[[float], Operation]]]:
+        """Generates a random sequence of Pauli gates for each layer.
+
+        Args:
+            layer (int): Number of layers in the circuit.
+            wires (List): List of wires in the circuit.
+            rng_key (int, optional): Seed for the random number generator.
+
+        Returns:
+            List: List of gate sequences for each layer.
+        """
+        if seed is not None:
+            np.random.seed(seed)
         list_gate_set = []
         for _ in range(layer):
             gate_set = [qml.RX, qml.RY, qml.RZ]
@@ -34,7 +71,16 @@ class BarrenPlateauCircuit(AbstractCircuit):
             list_gate_set.append(random_gate_sequence)
         return list_gate_set
 
-    def _params(self, rng_key):
+    def _params(self, seed: int):
+        """Initialize the parameters for the circuit evaluation.
+
+        Args:
+            seed (int, optional): Seed for the random number generator.
+
+        Returns:
+            np.ndarray: The parameters for the circuit evaluation.
+
+        """
         return qnp.array(
             qnp.random.random((self.num_layers * self.num_qubits)) * 2 * np.pi,
             requires_grad=True,
@@ -42,15 +88,43 @@ class BarrenPlateauCircuit(AbstractCircuit):
 
     @property
     def H(self):
+        """Return the Hamiltonian for the Barren Plateau Circuit.
+
+        The Hamiltonian consists of the sum of two-qubit Pauli Z operations
+        between each pair of adjacent qubits.
+
+        Returns:
+            qml.Hamiltonian: The Hamiltonian of the Barren Plateau Circuit.
+        """
         obs = [qml.PauliZ(0) @ qml.PauliZ(1)]
         coeffs = [1.0]
         H = qml.Hamiltonian(coeffs, obs)
         return H
 
-    def __call__(self, x):
-        return self._circuit_ansatz(x)
+    def __call__(self, params):
+        """Execute the circuit with given parameters.
+
+        Args:
+            params (np.ndarray): The parameters to be used for executing the circuit.
+
+        Returns:
+            Operation: The evaluation of the circuit.
+        """
+        return self._circuit_ansatz(params)
 
     def _circuit_ansatz(self, params) -> Operation:
+        """Perform the actual circuit execution with given parameters.
+
+        Args:
+            params (np.ndarray): The parameters to be used for evaluating the circuit.
+
+        Returns:
+            Operation: The evaluation of the circuit.
+
+        Raises:
+            AssertionError: If `self.list_gate_set` is not None or if the shape of
+                the 'params' does not match.
+        """
         assert self.list_gate_set is not None
         assert (
             len(params.flatten()) == self.num_qubits * self.num_layers

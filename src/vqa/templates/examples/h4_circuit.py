@@ -1,8 +1,20 @@
+from typing import Tuple
+
 import pennylane.numpy as pnp
+from vqa.hamiltonian import molecular_hamiltonian
 from vqa.templates.circuits import MolecularHamiltonianCircuit
 
 
-def _hf_params_h4(param_shape):
+def _hf_params_h4(param_shape: Tuple):
+    """Helper function to get the Hartree-Fock parameters for the H4 molecule.
+
+    Args:
+        param_shape (tuple): The shape of the parameters.
+
+    Returns:
+        numpy.ndarray: The Hartree-Fock parameters for the H4 molecule.
+
+    """
     params = pnp.zeros(param_shape)
 
     for i in range(param_shape[0]):
@@ -22,6 +34,29 @@ def h4_vqe_circuit(
     perturb_hf_params: bool = True,
     seed: int = 0,
 ) -> MolecularHamiltonianCircuit:
+    """
+    Build a quantum circuit for the Variational Quantum Eigensolver (VQE) simulation of the H4 molecule.
+
+    Args:
+        num_layers (int, optional): Number of layers in the circuit. Defaults to 1.
+        distance (float, optional): Distance between atoms in the molecule. Defaults to 1.0.
+        angle (float, optional): Angle between atoms in the molecule. Defaults to 90.0.
+        hf_params (bool, optional): Flag to specify whether to use Hartree-Fock parameters. Defaults to False.
+        perturb_hf_params (bool, optional): Flag to specify whether to perturb Hartree-Fock parameters. Defaults to True.
+        seed (int, optional): Seed for random number generation. Defaults to 0.
+
+    Returns:
+        MolecularHamiltonianCircuit: A quantum circuit object representing the H4 molecule.
+
+
+    Example:
+    >>> circuit = h4_vqe_circuit(num_layers=2)
+    >>> print(circuit.num_layers)
+    2
+    >>> params = circuit.init()
+
+    """
+
     # I would suggest values for dist between 0.5 and 3
     # and angles between 75 and 105
     name = "H4"
@@ -30,21 +65,24 @@ def h4_vqe_circuit(
     active_orbitals = 4
     frozen = 0
 
-    x = distance * pnp.cos(angle / 2.0)
-    y = distance * pnp.sin(angle / 2.0)
+    x = distance * pnp.cos(pnp.deg2rad(angle) / 2.0)
+    y = distance * pnp.sin(pnp.deg2rad(angle) / 2.0)
 
     coordinates = pnp.array([[x, y, 0.0], [x, -y, 0.0], [-x, -y, 0.0], [-x, y, 0.0]])
     initial_state = pnp.array([1, 1, 1, 1, 0, 0, 0, 0])
 
-    circuit = MolecularHamiltonianCircuit(
-        num_layers=num_layers,
-        name=name,
+    (H, num_qubits, ground_state_energy, hf_occ, no_occ,) = molecular_hamiltonian(
         symbols=symbols,
         coordinates=coordinates,
-        initial_state=initial_state,
+        name=name,
+        frozen=frozen,
         active_electrons=active_electrons,
         active_orbitals=active_orbitals,
-        frozen=frozen,
+    )
+    circuit = MolecularHamiltonianCircuit(
+        num_layers=num_layers,
+        H=H,
+        initial_state=initial_state,
     )
 
     if hf_params:

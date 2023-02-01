@@ -1,18 +1,22 @@
 import numpy as np
-from beartype import beartype
 import pennylane as qml
 
 
-@beartype
-def transverse_field_ising_hamiltonian(n_spins: int, transverse_field: float):
-    """
-    Hamiltonian of the transverse field Ising model.
+def transverse_field_ising_hamiltonian(
+    n_spins: int, transverse_field: float
+) -> qml.Hamiltonian:
+    """Calculates the Hamiltonian of the transverse field Ising model.
 
+    Args:
+        n_spins (int): The number of spins in the model.
+        transverse_field (float): The strength of the transverse field.
+
+    Returns:
+        qml.Hamiltonian: The Hamiltonian of the transverse field Ising model.
     """
     # transverse field
     coeffs = [-transverse_field for _ in range(n_spins)]
     obs = [qml.PauliX(np.pi / 2) for _ in range(n_spins)]
-    # print(qml.PauliX(np.pi/2))
     h_x = qml.Hamiltonian(coeffs, obs)
 
     # spin chain

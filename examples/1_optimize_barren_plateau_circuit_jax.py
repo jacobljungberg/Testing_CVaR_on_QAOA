@@ -10,8 +10,8 @@ from vqa.hamiltonian import get_eigenvalues_hamiltonian
 from vqa.templates.circuits import BarrenPlateauCircuit
 from vqa.utils.utils import get_approximation_ratio
 
-flags.DEFINE_integer("layer", 7, "Number of layers")
-flags.DEFINE_integer("n_qubits", 7, "Number of qubits")
+flags.DEFINE_integer("layer", 4, "Number of layers")
+flags.DEFINE_integer("n_qubits", 9, "Number of qubits")
 flags.DEFINE_integer("steps", 1000, "Number of optimization steps")
 flags.DEFINE_integer("seed", 123, "Random seed.")
 flags.DEFINE_float("stepsize", 0.1, "Random seed.")
@@ -28,7 +28,6 @@ def main(argv):
     min_cost, max_cost = np.min(eigenvalues), np.max(eigenvalues)
     print(f"min cost: {min_cost}, max cost: {max_cost}")
 
-    # loss_fun = jit(transforms.exp_val(circuit, interface="jax"))
     dev = qml.device("default.qubit", wires=circuit.wires)
 
     @jit
@@ -52,6 +51,8 @@ def main(argv):
     print(f"ground state: {np.round(min_cost, 1)}")
     print(f"exp val: {np.round(min_cost_optimized, 2)}")
     print(f"approx. ratio: {np.round(r,2).real}")
+
+    assert r > 0.95, "approximation ratio is too low"
 
 
 if __name__ == "__main__":

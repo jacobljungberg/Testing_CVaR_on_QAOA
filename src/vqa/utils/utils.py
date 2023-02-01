@@ -1,7 +1,8 @@
-import pennylane as qml
-from beartype import beartype
-import numpy as np
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+
+# from beartype import beartype
+import numpy as np
+import pennylane as qml
 
 
 def get_hamiltonian_matrix(H: qml.Hamiltonian):
@@ -9,7 +10,7 @@ def get_hamiltonian_matrix(H: qml.Hamiltonian):
     return qml.utils.sparse_hamiltonian(H).toarray()
 
 
-@beartype
+# @beartype
 def get_all_bitstrings_as_string(n: int) -> List:
     """Return a list of strings representing all the bitstrings up to n.
 
@@ -40,7 +41,7 @@ def get_approximation_ratio(E_optimized: float, E_min: float, E_max: float) -> f
     return (E_optimized - E_max) / (E_min - E_max)
 
 
-@beartype
+# @beartype
 def get_all_bitstrings(n_bits: int) -> np.ndarray:
     """Get all bitstrings up to n_bits.
 
@@ -60,7 +61,7 @@ def get_all_bitstrings(n_bits: int) -> np.ndarray:
     return bitstrings
 
 
-@beartype
+# @beartype
 def get_all_spinstrings(n_bits: int) -> np.ndarray:
     """Get all spinstrings up to n_bits.
 

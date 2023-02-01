@@ -1,7 +1,6 @@
 import numpy as np
 import pennylane as qml
 from pennylane import numpy as qnp
-
 from vqa.templates.circuits import AbstractCircuit
 
 

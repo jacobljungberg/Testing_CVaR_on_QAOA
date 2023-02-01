@@ -1,11 +1,11 @@
-import numpy as np
-from beartype import beartype
+# from beartype import beartype
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
+import numpy as np
 from vqa.utils.utils import get_all_bitstrings
 
 
-@beartype
+# @beartype
 def classify_bitstrings_tsp(costs: List):
     """
     Classify the bitstrings for the TSP problem into four categories:

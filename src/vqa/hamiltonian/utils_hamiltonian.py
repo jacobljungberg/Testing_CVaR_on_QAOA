@@ -1,30 +1,30 @@
-import numpy as np
 from typing import Any, Callable, Dict, List, Optional, Tuple
-from beartype import beartype
+
+import numpy as np
 import pennylane as qml
 from scipy.linalg import eig, inv
-
-from vqa.utils.utils import get_all_bitstrings
-from vqa.utils.decorator import memory
-
 from sympy import (
-    Sum,
-    symbols,
-    Indexed,
-    lambdify,
-    expand,
-    IndexedBase,
     Idx,
-    simplify,
+    Indexed,
+    IndexedBase,
     Poly,
+    Sum,
+    expand,
+    lambdify,
+    simplify,
+    symbols,
 )
+from vqa.utils.decorator import memory
+from vqa.utils.utils import get_all_bitstrings
+
+# from beartype import beartype
 
 
 def simplify_H(H):
     return simplify(expand(H.doit()))
 
 
-@beartype
+# @beartype
 def add_gate(index: np.ndarray):
     # def add_gate(index:np.ndarray, coeff:float):
     if len(index) == 1:
@@ -33,7 +33,7 @@ def add_gate(index: np.ndarray):
         return qml.PauliZ(index[0]) @ qml.PauliZ(index[1])  # * coeff
 
 
-@beartype
+# @beartype
 def get_ising_hamiltonian(interactions: np.ndarray, coefficients: np.ndarray):
     # identity, Is this correct?
     index_identity = np.where(interactions == 0)[0]
@@ -55,7 +55,7 @@ def get_coeffs_monomials(H) -> Tuple[np.ndarray, np.ndarray]:
     return coeffs, interactions
 
 
-@beartype
+# @beartype
 def compress_interactions(
     interactions: np.ndarray, coeffs: np.ndarray
 ) -> Tuple[np.ndarray, np.ndarray]:
@@ -74,7 +74,7 @@ def compress_interactions(
     return interactions.astype(int), np.array([*dict_inter.values()])
 
 
-@beartype
+# @beartype
 def get_eigenvalues_hamiltonian_Z_basis(hamiltonian: qml.Hamiltonian) -> np.ndarray:
     """Get the eigenvalues of the cost hamiltonian in Z basis.
 
@@ -102,7 +102,7 @@ def get_eigenvalues_hamiltonian_Z_basis(hamiltonian: qml.Hamiltonian) -> np.ndar
     return eigenvalues
 
 
-@beartype
+# @beartype
 def get_eigenvalues_hamiltonian(H: qml.Hamiltonian) -> np.ndarray:
     """Get the eigenvalues of the cost hamiltonian.
 

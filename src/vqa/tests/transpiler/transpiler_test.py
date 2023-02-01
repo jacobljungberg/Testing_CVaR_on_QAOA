@@ -24,7 +24,7 @@ def test_transpile(circuit_ansatz, num_layers, seed, Backend):
 
     backend = Backend()
     template_circuit = circuit_ansatz(num_layers=1)
-    params = template_circuit.init(rng_key=seed)
+    params = template_circuit.init(seed=seed)
 
     dev = qml.device("default.qubit", wires=template_circuit.wires)
 
@@ -67,11 +67,11 @@ def test_transpile(circuit_ansatz, num_layers, seed, Backend):
     "circuit_ansatz, num_layers, seed",
     [
         (BarrenPlateauCircuit, 1, 1),
-        # (h2_vqe_circuit, 2, 1),
+        (h2_vqe_circuit, 2, 1),
     ],
 )
 def test_pennylane_to_qiskit(circuit_ansatz, num_layers, seed):
-    ansatz = circuit_ansatz(num_layers=num_layers, num_qubits=4)
+    ansatz = circuit_ansatz(num_layers=num_layers)
     params = ansatz.init(seed)
 
     # calculate exp val of pennylane circuit
@@ -93,28 +93,35 @@ def test_pennylane_to_qiskit(circuit_ansatz, num_layers, seed):
     "circuit_ansatz, num_layers, seed",
     [
         (BarrenPlateauCircuit, 1, 1),
-        # (h2_vqe_circuit, 2, 1),
+        # (h2_vqe_circuit, 1, 1),
     ],
 )
 def test_qiskit_to_pennylane(circuit_ansatz, num_layers, seed):
-    num_qubits = 4
+    # TODO fix this test, h2 circuit after transplilation does not match exp val
+    # two layered Barrenplateau also does not work.
+
+    ansatz = circuit_ansatz(num_layers=num_layers)
+    params = ansatz.init(seed)
+    num_qubits = len(ansatz.wires)
+    # print(num_qubits, "num_qubits")
+
     qiskit_circuit, params, exp_val_before = test_pennylane_to_qiskit(
         circuit_ansatz, num_layers, seed
     )
 
-    ansatz = circuit_ansatz(num_layers=num_layers, num_qubits=num_qubits)
-    params = ansatz.init(seed)
-
     new_ansatz = _from_qiskit_to_pennylane(qiskit_circuit)
 
-    # currently ugly
-    ansatz.update_circuit_ansatz(new_ansatz, num_qubits)
-    ansatz._circuit_ansatz = new_ansatz
+    dev = qml.device("default.qubit", wires=ansatz.wires)
 
-    circuit = transforms.exp_val(ansatz)
+    @qml.qnode(dev)
+    def circuit(params):
+        new_ansatz(params)
+        return qml.expval(ansatz.H)
+
     exp_val_after = circuit(params)
 
-    # print(qml.draw(circuit)(params))
+    # print(exp_val_before, "exp_val_before")
+    # print(exp_val_after, "exp_val_after")
 
     assert np.isclose(
         exp_val_before, exp_val_after
@@ -124,11 +131,11 @@ def test_qiskit_to_pennylane(circuit_ansatz, num_layers, seed):
 if __name__ == "__main__":
     # pytest libs/vqa/src/vqa/tests/transpiler_test.py
 
-    test_transpile(h2_vqe_circuit, 1, 1, FakeChalmers9)
+    test_transpile(h2_vqe_circuit, 2, 1, FakeChalmers9)
     test_transpile(BarrenPlateauCircuit, 1, 1, FakeChalmers9)
 
     test_pennylane_to_qiskit(BarrenPlateauCircuit, 1, 1)
-    # test_pennylane_to_qiskit(h2_vqe_circuit, 1, 1)
+    test_pennylane_to_qiskit(h2_vqe_circuit, 1, 1)
 
     test_qiskit_to_pennylane(BarrenPlateauCircuit, 1, 1)
     # test_qiskit_to_pennylane(h2_vqe_circuit, 1, 1)

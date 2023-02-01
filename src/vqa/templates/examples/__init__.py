@@ -2,6 +2,7 @@
 # maybe make everything a function?
 from vqa.templates.circuits import BarrenPlateauCircuit
 
+from .barren_plateau_circuit import barren_plateau_circuit
 from .h2_circuit import h2_vqe_circuit
 from .h2_simple_circuit import h2_simple_vqe_circuit
 from .h2o_circuit import h2o_vqe_circuit

@@ -1,9 +1,7 @@
 import numpy as np
 from pennylane import qaoa
-from beartype import beartype
 
 
-@beartype
 def Pauli_X(wires):
     """Generate a quantum layer that applies the Pauli X operator to each qubit.
 

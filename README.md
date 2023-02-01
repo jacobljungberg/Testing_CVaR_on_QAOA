@@ -1,3 +1,5 @@
+[![CI](https://github.com/davidfitzek/vqa/actions/workflows/python-package.yml/badge.svg)](https://github.com/davidfitzek/vqa/actions/workflows/python-package.yml)
+
 
 # A library for variational quantum algorithms
 

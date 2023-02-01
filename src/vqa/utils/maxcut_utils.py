@@ -4,7 +4,6 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 import algorithmx
 import networkx as nx
 import numpy as np
-from beartype import beartype
 
 
 def get_maxcut_costs(graph) -> np.ndarray:

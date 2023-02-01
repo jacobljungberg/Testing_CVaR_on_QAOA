@@ -14,6 +14,7 @@ from vqa.utils.utils import get_approximation_ratio
     [
         (5, 7),
         (7, 4),
+        (9, 4),
     ],
 )
 def test_barren_plateau_circuit(num_layers, num_qubits):

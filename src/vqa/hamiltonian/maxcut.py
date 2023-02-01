@@ -1,14 +1,25 @@
-import pennylane as qml
 import networkx as nx
-from beartype import beartype
+import pennylane as qml
+
+# from beartype import beartype
 
 
-@beartype
+# @beartype
 def maxcut_hamiltonian(graph: nx.Graph):
-    # if not isinstance(graph, nx.Graph):
-    # raise TypeError(
-    # "Graph is not a networkx class (found type: %s)" % type(graph).__name__
-    # )
+    """
+    Calculates the Maxcut Hamiltonian for a given graph.
+
+    Args:
+        graph (nx.Graph): The input graph.
+
+    Returns:
+        qml.Hamiltonian: The Maxcut Hamiltonian for the given graph.
+    """
+
+    if not isinstance(graph, nx.Graph):
+        raise TypeError(
+            "Graph is not a networkx class (found type: %s)" % type(graph).__name__
+        )
 
     coeffs = [-0.5 for e in graph.edges]
     obs = [qml.Identity(e[0]) @ qml.Identity(e[1]) for e in graph.edges]

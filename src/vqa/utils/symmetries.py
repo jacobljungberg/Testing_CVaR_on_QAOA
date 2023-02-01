@@ -1,22 +1,21 @@
-import numpy as np
 from typing import Any, Callable, Dict, List, Optional, Tuple
+
+import numpy as np
 from sympy import (
-    Sum,
-    symbols,
-    Indexed,
-    lambdify,
-    expand,
-    IndexedBase,
     Idx,
-    simplify,
+    Indexed,
+    IndexedBase,
     Poly,
+    Sum,
+    expand,
+    lambdify,
+    simplify,
+    symbols,
 )
 
 # from vqa.utils.utils import get_all_bitstrings, pairwise
-from beartype import beartype as type_check
 
 
-@type_check
 def get_all_bitstrings(n_bits: int) -> Tuple[np.ndarray, np.ndarray]:
     """Get all bitstrings up to n_bits.
 
@@ -37,7 +36,6 @@ def get_all_bitstrings(n_bits: int) -> Tuple[np.ndarray, np.ndarray]:
     return bitstrings, bitstrings_binary
 
 
-@type_check
 def reduce_H_parity(
     parity_interactions: np.ndarray,
     coeffs: np.ndarray,
@@ -87,7 +85,6 @@ def reduce_H_parity(
     return H
 
 
-@type_check
 def update_coeffs(
     coeffs: np.ndarray, measurements: np.ndarray, eliminated_subspaces: np.ndarray
 ) -> np.ndarray:
@@ -103,7 +100,6 @@ def update_coeffs(
     return new_coeffs
 
 
-@type_check
 def compress_interactions(
     interactions: np.ndarray, coeffs: np.ndarray
 ) -> Tuple[np.ndarray, np.ndarray]:
@@ -134,7 +130,6 @@ def get_coeffs_monomials(H) -> Tuple[np.ndarray, np.ndarray]:
     return coeffs, interactions
 
 
-@type_check
 def get_parity(arr: np.ndarray):
     """generate a parity bitstring for a given interaction"""
     temp = np.zeros((arr.shape))
@@ -198,7 +193,6 @@ def get_tsp_hamiltonian(n_cities):
     return H
 
 
-@type_check
 def apply_mod2(arr: np.ndarray) -> np.ndarray:
     """Apply the addition mod2 operation on the bitstring.
         NOTE: The function acts on the right most register arr[-1] first.
@@ -218,7 +212,6 @@ def apply_mod2(arr: np.ndarray) -> np.ndarray:
     return new_arr[::-1]
 
 
-@type_check
 def evaluate_H(interactions: np.ndarray, coeffs: np.ndarray) -> np.ndarray:
     bitstrings, _ = get_all_bitstrings(interactions.shape[1])
     costs = np.zeros(len(bitstrings))
@@ -227,7 +220,6 @@ def evaluate_H(interactions: np.ndarray, coeffs: np.ndarray) -> np.ndarray:
     return costs
 
 
-@type_check
 def get_cost(interactions: np.ndarray, coeffs: np.ndarray, b: np.ndarray) -> np.float32:
     costs = np.zeros(len(interactions))
     # print('#######')
@@ -257,7 +249,6 @@ def get_cost(interactions: np.ndarray, coeffs: np.ndarray, b: np.ndarray) -> np.
     return np.sum(costs).astype(np.float32)
 
 
-@type_check
 def get_original_bitstring(
     bitstring: np.ndarray, symmetries: Dict
 ) -> Tuple[np.ndarray, np.ndarray]:
@@ -275,7 +266,6 @@ def get_original_bitstring(
     return bitstring[::-1], bitstring_parity.flatten()
 
 
-@type_check
 def get_h_tsp(n: int) -> Tuple[np.ndarray, np.ndarray]:
     """Get the Hamiltonian of the TSP problem.
 
@@ -295,14 +285,12 @@ def get_h_tsp(n: int) -> Tuple[np.ndarray, np.ndarray]:
     return interactions, coeffs
 
 
-@type_check
 def get_h_tsp_parity(n: int) -> Tuple[np.ndarray, np.ndarray]:
     interactions, coeffs = get_h_tsp(n)
     parity_interactions = np.array([get_parity(i) for i in interactions])
     return parity_interactions, coeffs
 
 
-@type_check
 def get_h_tsp_parity_reduced(n: int) -> Tuple[np.ndarray, np.ndarray]:
     parity_interactions, coeffs = get_h_tsp_parity(n)
     if n == 3:
@@ -321,7 +309,6 @@ def get_h_tsp_parity_reduced(n: int) -> Tuple[np.ndarray, np.ndarray]:
     return parity_interactions_reduced, coeffs_reduced
 
 
-@type_check
 def count_interactons(interactions: np.ndarray) -> np.ndarray:
     interactions_count = np.zeros(4)
     for i, inter in enumerate(interactions):

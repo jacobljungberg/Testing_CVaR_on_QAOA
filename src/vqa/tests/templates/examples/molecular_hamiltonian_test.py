@@ -19,20 +19,22 @@ from vqa.utils.utils import get_approximation_ratio
 
 
 @pytest.mark.parametrize(
-    "get_circuit, num_layers, seed",
+    "get_circuit, num_layers, hf_params, seed",
     [
-        (h2_vqe_circuit, 5, 0),
-        (lih_vqe_circuit, 3, 0),
+        (h2_vqe_circuit, 5, True, 0),
+        (h2_vqe_circuit, 5, False, 0),
+        (h4_vqe_circuit, 3, True, 0),
+        (h4_vqe_circuit, 3, False, 0),
+        (lih_vqe_circuit, 3, True, 0),
+        (lih_vqe_circuit, 3, False, 0),
     ],
 )
 def molecular_hamiltonain_test(get_circuit: Callable, num_layers: int, seed: int):
-    # circuit
     circuit = get_circuit(num_layers, hf_params=True)
     params = circuit.init()
     min_cost = circuit.ground_state_energy
 
     loss_fun = jit(transforms.exp_val(circuit, circuit.H, interface="jax"))
-    # loss_fun = transforms.exp_val(circuit, circuit.H, interface="jax")
 
     opt = optax.adam(0.1)
     solver = OptaxSolver(opt=opt, fun=loss_fun, maxiter=100)

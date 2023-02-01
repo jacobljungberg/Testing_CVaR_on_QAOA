@@ -22,6 +22,10 @@ from vqa.transpiler.architectures import (
     FakeChalmers20,
 )
 
+# qiskit and pennylane do not always use the same name convention for quantum gates
+qml_to_qiskit = {"CNOT": "CX"}
+qiskit_to_qml = {"CX": "CNOT"}
+
 
 @dataclass
 class Gate:
@@ -138,6 +142,9 @@ def _from_pennylane_to_qiskit(
         qiskit_circuit.num_qubits, qiskit_circuit.num_clbits
     )
 
+    # parametrized_circuit = _create_parametrized_circuit(dag, qiskit_circuit, params)
+
+    # TODO split loop into two functions to make it more readable.
     param_id = [str(f"param_{i}") for i in range(len(params))]
     param_counter = 0
     for node in dag.topological_op_nodes():
@@ -218,7 +225,9 @@ def _from_qiskit_to_pennylane(
         ), f"Number of trainable gates:{len(trainable_gates)}, but got {len(params)}."
         params_counter = 0
         for (gate_id, wires, param, trainable) in gate_list:
-            # print(gate_id)
+            # Some gates have a different name in qiskit and pennylane
+            if gate_id in qiskit_to_qml:
+                gate_id = qiskit_to_qml[gate_id]
 
             if param is None:
                 if trainable:
